@@ -6,6 +6,13 @@ In this lab you will deploy the [DNS add-on](https://kubernetes.io/docs/concepts
 
 Deploy the `coredns` cluster add-on:
 
+using helm
+```
+helm repo add coredns https://coredns.github.io/helm
+helm --namespace=kube-system install coredns coredns/coredns
+```
+
+
 ```
 kubectl apply -f https://storage.googleapis.com/kubernetes-the-hard-way/coredns-1.8.yaml
 ```

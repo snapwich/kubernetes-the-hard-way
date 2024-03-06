@@ -49,13 +49,13 @@ sudo swapoff -a
 
 ```
 wget -q --show-progress --https-only --timestamping \
-  https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.21.0/crictl-v1.21.0-linux-amd64.tar.gz \
-  https://github.com/opencontainers/runc/releases/download/v1.0.0-rc93/runc.amd64 \
-  https://github.com/containernetworking/plugins/releases/download/v0.9.1/cni-plugins-linux-amd64-v0.9.1.tgz \
-  https://github.com/containerd/containerd/releases/download/v1.4.4/containerd-1.4.4-linux-amd64.tar.gz \
-  https://storage.googleapis.com/kubernetes-release/release/v1.21.0/bin/linux/amd64/kubectl \
-  https://storage.googleapis.com/kubernetes-release/release/v1.21.0/bin/linux/amd64/kube-proxy \
-  https://storage.googleapis.com/kubernetes-release/release/v1.21.0/bin/linux/amd64/kubelet
+  https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.29.0/crictl-v1.29.0-linux-amd64.tar.gz \
+  https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.amd64 \
+  https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz \
+  https://github.com/containerd/containerd/releases/download/v1.7.13/containerd-1.7.13-linux-amd64.tar.gz \
+  https://storage.googleapis.com/kubernetes-release/release/v1.29.0/bin/linux/amd64/kubectl \
+  https://storage.googleapis.com/kubernetes-release/release/v1.29.0/bin/linux/amd64/kube-proxy \
+  https://storage.googleapis.com/kubernetes-release/release/v1.29.0/bin/linux/amd64/kubelet
 ```
 
 Create the installation directories:
@@ -75,9 +75,9 @@ Install the worker binaries:
 ```
 {
   mkdir containerd
-  tar -xvf crictl-v1.21.0-linux-amd64.tar.gz
-  tar -xvf containerd-1.4.4-linux-amd64.tar.gz -C containerd
-  sudo tar -xvf cni-plugins-linux-amd64-v0.9.1.tgz -C /opt/cni/bin/
+  tar -xvf crictl-v1.29.0-linux-amd64.tar.gz
+  tar -xvf containerd-1.7.13-linux-amd64.tar.gz -C containerd
+  sudo tar -xvf cni-plugins-linux-amd64-v1.4.0.tgz -C /opt/cni/bin/
   sudo mv runc.amd64 runc
   chmod +x crictl kubectl kube-proxy kubelet runc 
   sudo mv crictl kubectl kube-proxy kubelet runc /usr/local/bin/
@@ -138,13 +138,17 @@ sudo mkdir -p /etc/containerd/
 
 ```
 cat << EOF | sudo tee /etc/containerd/config.toml
-[plugins]
-  [plugins.cri.containerd]
-    snapshotter = "overlayfs"
-    [plugins.cri.containerd.default_runtime]
-      runtime_type = "io.containerd.runtime.v1.linux"
-      runtime_engine = "/usr/local/bin/runc"
-      runtime_root = ""
+version = 2
+
+[plugins."io.containerd.grpc.v1.cri"]
+  snapshotter = "overlayfs"
+  [plugins."io.containerd.grpc.v1.cri".containerd]
+    default_runtime_name = "runc"
+    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+      runtime_type = "io.containerd.runc.v1"
+      # Remove runtime_engine and runtime_root if not applicable
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+        SystemdCgroup = true
 EOF
 ```
 
@@ -201,7 +205,7 @@ authorization:
   mode: Webhook
 clusterDomain: "cluster.local"
 clusterDNS:
-  - "10.32.0.10"
+  - "10.32.0.194"
 podCIDR: "${POD_CIDR}"
 resolvConf: "/run/systemd/resolve/resolv.conf"
 runtimeRequestTimeout: "15m"
@@ -238,6 +242,16 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 EOF
+```
+
+UPDATES
+```
+ExecStart=/usr/local/bin/kubelet \
+  --config=/var/lib/kubelet/kubelet-config.yaml \
+  --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock \
+  --kubeconfig=/var/lib/kubelet/kubeconfig \
+  --register-node=true \
+  --v=2
 ```
 
 ### Configure the Kubernetes Proxy

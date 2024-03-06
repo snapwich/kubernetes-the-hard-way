@@ -22,15 +22,15 @@ Download the official etcd release binaries from the [etcd](https://github.com/e
 
 ```
 wget -q --show-progress --https-only --timestamping \
-  "https://github.com/etcd-io/etcd/releases/download/v3.4.15/etcd-v3.4.15-linux-amd64.tar.gz"
+  "https://github.com/etcd-io/etcd/releases/download/v3.5.12/etcd-v3.5.12-linux-amd64.tar.gz"
 ```
 
 Extract and install the `etcd` server and the `etcdctl` command line utility:
 
 ```
 {
-  tar -xvf etcd-v3.4.15-linux-amd64.tar.gz
-  sudo mv etcd-v3.4.15-linux-amd64/etcd* /usr/local/bin/
+  tar -xvf etcd-v3.5.12-linux-amd64.tar.gz
+  sudo mv etcd-v3.5.12-linux-amd64/etcd* /usr/local/bin/
 }
 ```
 
@@ -85,6 +85,8 @@ ExecStart=/usr/local/bin/etcd \\
   --initial-cluster controller-0=https://10.240.0.10:2380,controller-1=https://10.240.0.11:2380,controller-2=https://10.240.0.12:2380 \\
   --initial-cluster-state new \\
   --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
 Restart=on-failure
 RestartSec=5
 

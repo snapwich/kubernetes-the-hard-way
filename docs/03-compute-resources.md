@@ -104,7 +104,7 @@ for i in 0 1 2; do
     --async \
     --boot-disk-size 200GB \
     --can-ip-forward \
-    --image-family ubuntu-2004-lts \
+    --image-family ubuntu-2204-lts \
     --image-project ubuntu-os-cloud \
     --machine-type e2-standard-2 \
     --private-network-ip 10.240.0.1${i} \
@@ -128,7 +128,7 @@ for i in 0 1 2; do
     --async \
     --boot-disk-size 200GB \
     --can-ip-forward \
-    --image-family ubuntu-2004-lts \
+    --image-family ubuntu-2204-lts \
     --image-project ubuntu-os-cloud \
     --machine-type e2-standard-2 \
     --metadata pod-cidr=10.200.${i}.0/24 \
@@ -208,7 +208,7 @@ Waiting for SSH key to propagate.
 After the SSH keys have been updated you'll be logged into the `controller-0` instance:
 
 ```
-Welcome to Ubuntu 20.04.2 LTS (GNU/Linux 5.4.0-1042-gcp x86_64)
+Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 6.5.0-1014-gcp x86_64)
 ...
 ```
 
